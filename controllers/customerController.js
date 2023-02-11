@@ -14,6 +14,32 @@ const addcustomer = async(req,res,next) => {
     }
 }
 
+const getAllCustomers = async (req, res, next) => {
+    try {
+        const customers = await db.collection('customerData');
+        const data = await customers.get();
+        const customersArray = [];
+        if(data.empty) {
+            res.status(404).send('No customer record found');
+        }else {
+            data.forEach(doc => {
+                const customer = new Customer(
+                    doc.id,
+                    doc.data().firstName,
+                    doc.data().lastName,
+                    doc.data().age,
+                    doc.data().phoneNumber,
+                    doc.data().status
+                );
+                customersArray.push(customer);
+            });
+            res.send(customersArray);
+        }
+    } catch (error) {
+        res.status(400).send(error.message);
+    }
+}
+
 const getcustomer = async (req, res, next) => {
     try {
         const id = req.params.id;
@@ -31,5 +57,6 @@ const getcustomer = async (req, res, next) => {
 
 module.exports = {
     addcustomer,
+    getAllCustomers,
     getcustomer
 }
